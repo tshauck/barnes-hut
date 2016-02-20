@@ -60,3 +60,36 @@ func (b Body) AddForce(ob Body) {
 		b.f[i] += totalForce * d / overall_distance
 	}
 }
+
+func (b Body) AddBody(ob Body) Body {
+
+	total_mass := b.mass + ob.mass
+
+	var new_r []float64
+	dims := len(b.r)
+
+	for dim := 0; dim < dims; dim++ {
+		new_r[dim] = ((b.r[dim] * b.mass) + (ob.r[dim] * ob.mass)) / total_mass
+	}
+
+	return Body{
+		r:    new_r,
+		mass: total_mass,
+	}
+}
+
+func (b Body) InQuadrant(q Quadrant) bool {
+
+	dims := len(b.r)
+
+	for dim := 0; dim < dims; dim++ {
+		upper := q.base[dim] + q.width
+		lower := q.base[dim]
+
+		if !((lower < b.r[dim]) && (b.r[dim] < upper)) {
+			return false
+		}
+	}
+
+	return true
+}

@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestEquals(t *testing.T) {
+func TestBodyEquals(t *testing.T) {
 
 	b1 := Body{
 		r:    []float64{0.0, 0.0},
