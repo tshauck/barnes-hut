@@ -1,11 +1,12 @@
 package barneshut
 
 import (
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"math"
 )
 
 const G = 6.67e-11
+const EPS = 1e-5
 
 type Color struct{}
 
@@ -38,8 +39,12 @@ func (b Body) DistantceTo(ob Body) float64 {
 
 func (b Body) Equals(ob Body) bool {
 
+	compare_floats := func(a float64, b float64) bool {
+		return math.Abs(a-b) < EPS
+	}
+
 	for i := 0; i < len(b.r); i++ {
-		if !(b.r[i] == ob.r[i] && b.v[i] == ob.v[i] && b.f[i] == ob.f[i]) {
+		if !(compare_floats(b.r[i], ob.r[i]) && compare_floats(b.v[i], ob.v[i]) && compare_floats(b.f[i], ob.f[i])) {
 			return false
 		}
 	}
@@ -53,7 +58,7 @@ func (b Body) AddForce(ob Body) {
 	overall_distance := b.DistantceTo(ob)
 	totalForce := (G * b.mass * ob.mass) / math.Pow(overall_distance, 2)
 
-	log.Printf("Distance between bodies is (%f), and its Force is (%f)", overall_distance, totalForce)
+	log.Debugf("Distance between bodies is (%f), and its Force is (%f)", overall_distance, totalForce)
 
 	for i := 0; i < len(b.r); i++ {
 		d := ob.r[i] - b.r[i]
@@ -63,17 +68,23 @@ func (b Body) AddForce(ob Body) {
 
 func (b Body) AddBody(ob Body) Body {
 
+	log.Debugf("Adding other body (%v) to (%v)", ob, b)
 	total_mass := b.mass + ob.mass
 
-	var new_r []float64
 	dims := len(b.r)
+	var new_rs []float64
+	var new_r float64
 
 	for dim := 0; dim < dims; dim++ {
-		new_r[dim] = ((b.r[dim] * b.mass) + (ob.r[dim] * ob.mass)) / total_mass
+		log.Debugf("On dim (%d) adding b.r %v to ob.r %v", dim, b.r[dim], ob.r[dim])
+		new_r = ((b.r[dim] * b.mass) + (ob.r[dim] * ob.mass)) / total_mass
+		new_rs = append(new_rs, new_r)
 	}
 
 	return Body{
-		r:    new_r,
+		r:    new_rs,
+		v:    b.v,
+		f:    b.f,
 		mass: total_mass,
 	}
 }

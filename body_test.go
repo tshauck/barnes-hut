@@ -94,3 +94,52 @@ func TestAddForce(t *testing.T) {
 	}
 
 }
+
+func TestAddBody(t *testing.T) {
+
+	b1 := Body{
+		r:    []float64{0.1, 0.1},
+		v:    []float64{0.0, 0.0},
+		f:    []float64{0.0, 0.0},
+		mass: 1,
+	}
+
+	b2 := Body{
+		r:    []float64{0.5, 0.5},
+		v:    []float64{0.0, 0.0},
+		f:    []float64{0.0, 0.0},
+		mass: 2,
+	}
+
+	b1 = b1.AddBody(b2)
+
+	expectedBody := Body{
+		r:    []float64{1.1 / 3, 1.1 / 3},
+		v:    []float64{0.0, 0.0},
+		f:    []float64{0.0, 0.0},
+		mass: 3,
+	}
+
+	if !b1.Equals(expectedBody) {
+		t.Errorf("Not Equal: %v != %v", expectedBody, b1)
+	}
+
+}
+
+func TestInQuadrant(t *testing.T) {
+	b := Body{
+		r:    []float64{0.5, 0.5},
+		v:    []float64{0.0, 0.0},
+		f:    []float64{0.0, 0.0},
+		mass: 2,
+	}
+	q := Quadrant{
+		base:  []float64{0.0, 0.0},
+		width: 1.0,
+	}
+
+	if !b.InQuadrant(q) {
+		t.Errorf("Body %v not in quadrant %v", b, q)
+	}
+
+}

@@ -1,5 +1,9 @@
 package barneshut
 
+import (
+	log "github.com/Sirupsen/logrus"
+)
+
 // Long term Quadrant becomes a node.
 type Quadrant struct {
 	width float64   // the width of the quadrant
@@ -35,6 +39,8 @@ func (q Quadrant) Equals(oq Quadrant) bool {
 }
 
 func (q Quadrant) NewQuadrant(area string) Quadrant {
+
+	log.Debugf("Creating New Quadrant (%v) in area (%s)", q, area)
 
 	switch {
 	case area == "NW":
