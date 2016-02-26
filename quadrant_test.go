@@ -1,8 +1,14 @@
 package barneshut
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"testing"
 )
+
+func init() {
+	//Move this to a different place, like main.go?
+	log.SetLevel(log.InfoLevel)
+}
 
 func TestContains(t *testing.T) {
 
@@ -19,11 +25,9 @@ func TestContains(t *testing.T) {
 	expected := []bool{false, false, true}
 
 	for i := range test_points {
-
 		if q.Contains(test_points[i]) != expected[i] {
 			t.Errorf("Error for point %v, got: %v", test_points[i], expected[i])
 		}
-
 	}
 }
 
@@ -45,21 +49,20 @@ func TestEquals(t *testing.T) {
 
 }
 
-func TestNewQuadrant(t *testing.T) {
-	starting_quad := Quadrant{width: 1, base: []float64{0, 0}}
+func TestQuadrantSubdivide(t *testing.T) {
+	base := Quadrant{width: 1, base: []float64{0.0, 0.0}}
+	actual := base.Subdivide()
 
-	expected_quads := map[string]Quadrant{
-		"NE": Quadrant{width: 0.5, base: []float64{1, 1}},
-		"NW": Quadrant{width: 0.5, base: []float64{0, 1}},
-		"SW": Quadrant{width: 0.5, base: []float64{0, 0}},
-		"SE": Quadrant{width: 0.5, base: []float64{1, 0}},
+	expected := []Quadrant{
+		Quadrant{width: .5, base: []float64{0.0, 0.0}},
+		Quadrant{width: .5, base: []float64{0.5, 0.0}},
+		Quadrant{width: .5, base: []float64{0.0, 0.5}},
+		Quadrant{width: .5, base: []float64{0.5, 0.5}},
 	}
 
-	for key := range expected_quads {
-		new_quad := starting_quad.NewQuadrant(key)
-		if !(new_quad.Equals(expected_quads[key])) {
-			t.Errorf("Quads not equal for %s, got %v, expected %v", key, new_quad, expected_quads[key])
+	for i := range actual {
+		if !actual[i].Equals(expected[i]) {
+			t.Errorf("Actual Quadrant (%s) != Expected Quadrant (%s)", actual[i], expected[i])
 		}
 	}
-
 }

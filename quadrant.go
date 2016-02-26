@@ -1,6 +1,7 @@
 package barneshut
 
 import (
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 )
 
@@ -10,7 +11,14 @@ type Quadrant struct {
 	base  []float64 // the "lower-left" point of this quadrant
 }
 
+func (q Quadrant) String() string {
+	return fmt.Sprintf("Quadrant{width: %v, base: %v}", q.width, q.base)
+}
+
 func (q Quadrant) Contains(point []float64) bool {
+
+	log.Debugf("Checking if point(%v) is in quadrant in %s", point, q)
+
 	for dim := 0; dim < len(point); dim++ {
 		base_open := q.base[dim]
 		base_close := base_open + q.width
@@ -25,34 +33,52 @@ func (q Quadrant) Contains(point []float64) bool {
 
 func (q Quadrant) Equals(oq Quadrant) bool {
 
-	for i := range q.base {
-		if q.base[i] != oq.base[i] {
-			return false
-		}
+	log.Debugf("Checking if q(%s) is equal to oq(%s)", q, oq)
+
+	if len(oq.base) != len(q.base) {
+		// Added because of cases where [.5] == [.5, 0]
+		return false
 	}
 
 	if q.width != oq.width {
 		return false
 	}
 
+	for i := range q.base {
+		if q.base[i] != oq.base[i] {
+			return false
+		}
+	}
+
 	return true
 }
 
-func (q Quadrant) NewQuadrant(area string) Quadrant {
+func (q Quadrant) Subdivide() []Quadrant {
 
-	log.Debugf("Creating New Quadrant (%v) in area (%s)", q, area)
+	log.Debugf("Subdividing quadrant (%s).", q)
 
-	switch {
-	case area == "NW":
-		return Quadrant{width: q.width / 2, base: []float64{q.base[0], q.base[1] + q.width}}
-	case area == "NE":
-		return Quadrant{width: q.width / 2, base: []float64{q.base[0] + q.width, q.base[1] + q.width}}
-	case area == "SW":
-		return Quadrant{width: q.width / 2, base: []float64{q.base[0], q.base[1]}}
-	case area == "SE":
-		return Quadrant{width: q.width / 2, base: []float64{q.base[0] + q.width, q.base[1]}}
+	cnt_new_quadrants := Pow(2, len(q.base))
+
+	var quadrants []Quadrant
+	var offset []int
+
+	for i := 0; i < cnt_new_quadrants; i++ {
+		offset = Index2Offset(i, len(q.base))
+
+		var new_points []float64
+
+		j := len(offset) - 1
+		for {
+			new_points = append(new_points, q.base[j]+float64(offset[j])*(q.width/2))
+			if j == 0 {
+				break
+			}
+			j = j - 1
+		}
+
+		quadrants = append(quadrants, Quadrant{base: new_points, width: q.width / 2})
 	}
 
-	return Quadrant{}
-
+	log.Infof("Returning quadrants: %v", quadrants)
+	return quadrants
 }
