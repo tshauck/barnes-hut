@@ -13,8 +13,8 @@ func init() {
 func TestContains(t *testing.T) {
 
 	q := Quadrant{
-		width: 1,
-		base:  []float64{0.0, 0.0},
+		Width: 1,
+		LL:    []float64{0.0, 0.0},
 	}
 
 	test_points := [][]float64{
@@ -34,13 +34,13 @@ func TestContains(t *testing.T) {
 func TestEquals(t *testing.T) {
 
 	q := Quadrant{
-		width: 1,
-		base:  []float64{0.0, 0.0},
+		Width: 1,
+		LL:    []float64{0.0, 0.0},
 	}
 
 	q2 := Quadrant{
-		width: 1,
-		base:  []float64{0.0, 0.0},
+		Width: 1,
+		LL:    []float64{0.0, 0.0},
 	}
 
 	if !q.Equals(q2) {
@@ -50,14 +50,14 @@ func TestEquals(t *testing.T) {
 }
 
 func TestQuadrantSubdivide(t *testing.T) {
-	base := Quadrant{width: 1, base: []float64{0.0, 0.0}}
-	actual := base.Subdivide()
+	LL := Quadrant{Width: 1, LL: []float64{0.0, 0.0}}
+	actual := LL.Subdivide()
 
 	expected := []Quadrant{
-		Quadrant{width: .5, base: []float64{0.0, 0.0}},
-		Quadrant{width: .5, base: []float64{0.5, 0.0}},
-		Quadrant{width: .5, base: []float64{0.0, 0.5}},
-		Quadrant{width: .5, base: []float64{0.5, 0.5}},
+		Quadrant{Width: .5, LL: []float64{0.0, 0.0}},
+		Quadrant{Width: .5, LL: []float64{0.5, 0.0}},
+		Quadrant{Width: .5, LL: []float64{0.0, 0.5}},
+		Quadrant{Width: .5, LL: []float64{0.5, 0.5}},
 	}
 
 	for i := range actual {

@@ -1,33 +1,38 @@
 package barneshut
 
 import (
+	"encoding/json"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	//"reflect"
 )
 
-type Tree struct {
-	B           *Body
-	Q           Quadrant
-	Ts          []Tree
-	HasChildren bool
+type Node struct {
+	B  *Body    `json:"Body"`
+	Q  Quadrant `json:"Quadrant"`
+	Ts []*Node  `json:"Nodes"`
 }
 
-func (t Tree) String() string {
-	return fmt.Sprintf("Tree{B: %s, Q: %s, Ts: %s}", t.B, t.Q, t.Ts)
+func (n Node) Json() []byte {
+	b, _ := json.MarshalIndent(n, "", "  ")
+	return b
 }
 
-func (t Tree) HasBody() bool {
+func (t Node) String() string {
+	return fmt.Sprintf("Node{B: %s, Q: %s, Ts: %s}", t.B, t.Q, t.Ts)
+}
+
+func (t Node) HasBody() bool {
 	//log.Infof("t.B is %v", t.B)
 	return t.B != nil
 }
 
-func (t Tree) IsInternal() bool {
-	// A tree is internal if there is at least one sub tree
+func (t Node) IsInternal() bool {
+	// A node is internal if there is at least one sub node
 	// that has a body.
 
-	for _, tree := range t.Ts {
-		if tree.HasBody() {
+	for _, node := range t.Ts {
+		if node.HasBody() {
 			return true
 		}
 	}
@@ -35,77 +40,73 @@ func (t Tree) IsInternal() bool {
 	return false
 }
 
-func TreesFromQuadrants(qs []Quadrant) []Tree {
-	var newTrees []Tree
+func NodesFromQuadrants(qs []Quadrant) []*Node {
+	var newNodes []*Node
 
 	for _, q := range qs {
-		newTrees = append(newTrees, Tree{Q: q})
+		newNodes = append(newNodes, &Node{Q: q})
 	}
 
-	return newTrees
+	return newNodes
 }
 
-func (t *Tree) isInternalInsert(b Body) {
-	for _, newTree := range t.Ts {
-		if b.InQuadrant(newTree.Q) {
-			newTree.Insert(b)
+func (t *Node) isInternalInsert(pB *Body) {
+	for _, newNode := range t.Ts {
+		if pB.InQuadrant(newNode.Q) {
+			newNode.Insert(pB)
 		}
 	}
 
 }
 
-func (t *Tree) isExternalInsert(b Body) {
-	currentBody := t.B
+func (t *Node) isExternalInsert(pB *Body) {
+	currentBody := t.B // Kinda need to make a copy here?
 
 	// TODO(trent): Update AddBody to modify the body
-	//t.B = t.B.AddBody(b)
+	log.Infof("%v", t.B)
+	t.B.AddBody(pB)
+	log.Infof("%v", t.B)
 
-	for _, newTree := range t.Ts {
-		if b.InQuadrant(newTree.Q) {
-			log.Infof("Putting new body in tree: %v", newTree)
-			newTree.Insert(b)
+	for _, newNode := range t.Ts {
+		if pB.InQuadrant(newNode.Q) {
+			log.Infof("Putting new body in node: %v", newNode)
+			newNode.Insert(pB)
 			break
 		}
 	}
 
-	for _, newTree := range t.Ts {
-		if currentBody.InQuadrant(newTree.Q) {
-			log.Infof("Putting old body in tree: %v", newTree)
-			newTree.Insert(*currentBody)
+	for _, newNode := range t.Ts {
+		if currentBody.InQuadrant(newNode.Q) {
+			log.Infof("Putting old body in node: %v", newNode)
+			newNode.Insert(currentBody)
 		}
 	}
 }
 
-func (t *Tree) Insert(b Body) {
-	// Note: Tree is passed as a pointer here so that it can be modified
-
-	if !t.HasChildren {
-		new_quadrants := t.Q.Subdivide()
-		t.Ts = TreesFromQuadrants(new_quadrants)
-		t.HasChildren = true
-	}
-
+func (t *Node) Insert(pB *Body) {
+	// Note: Node is passed as a pointer here so that it can be modified
 	if !t.HasBody() {
-		t.B = &b
+		t.B = pB
 		return
 	}
 
 	if t.IsInternal() {
-		log.Infof("t is internal, inserting.")
-		t.isInternalInsert(b)
+		t.isInternalInsert(pB)
 	} else {
-		log.Infof("t is external, inserting.")
-		t.isExternalInsert(b)
+		new_quadrants := t.Q.Subdivide()
+		t.Ts = NodesFromQuadrants(new_quadrants)
+
+		t.isExternalInsert(pB)
 	}
 
 }
 
-func (t Tree) UpdateForce(b Body) {
+func (t Node) UpdateForce(b Body) {
 	// logic to update the forces given all
 }
 
-func TreeFromQuadrant(q Quadrant) Tree {
-	return Tree{
+func NodeFromQuadrant(q Quadrant) Node {
+	return Node{
 		Q: q,
 	}
 }

@@ -7,18 +7,18 @@ import (
 
 func TestBodyEquals(t *testing.T) {
 
-	b1 := Body{
-		r:    []float64{0.0, 0.0},
-		v:    []float64{0.0, 0.0},
-		f:    []float64{0.0, 0.0},
-		mass: 0,
+	b1 := &Body{
+		R:    []float64{0.0, 0.0},
+		V:    []float64{0.0, 0.0},
+		F:    []float64{0.0, 0.0},
+		Mass: 0,
 	}
 
-	b2 := Body{
-		r:    []float64{0.0, 0.0},
-		v:    []float64{0.0, 0.0},
-		f:    []float64{0.0, 0.0},
-		mass: 0,
+	b2 := &Body{
+		R:    []float64{0.0, 0.0},
+		V:    []float64{0.0, 0.0},
+		F:    []float64{0.0, 0.0},
+		Mass: 0,
 	}
 
 	if !b1.Equals(b2) {
@@ -32,11 +32,11 @@ func TestBodyEquals(t *testing.T) {
 func TestDistanceTo(t *testing.T) {
 	expected := math.Sqrt(2)
 	b1 := Body{
-		r: []float64{1.0, 1.0},
+		R: []float64{1.0, 1.0},
 	}
 
 	b2 := Body{
-		r: []float64{0.0, 0.0},
+		R: []float64{0.0, 0.0},
 	}
 
 	actual := b1.DistantceTo(b2)
@@ -47,20 +47,20 @@ func TestDistanceTo(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	b1 := Body{
-		r:    []float64{1.0, 1.0},
-		v:    []float64{1.0, 1.0},
-		f:    []float64{1.0, 1.0},
-		mass: 2,
+	b1 := &Body{
+		R:    []float64{1.0, 1.0},
+		V:    []float64{1.0, 1.0},
+		F:    []float64{1.0, 1.0},
+		Mass: 2,
 	}
 
 	b1.Update(1)
 
-	b2 := Body{
-		r:    []float64{2.5, 2.5},
-		v:    []float64{1.5, 1.5},
-		f:    []float64{1.0, 1.0},
-		mass: 2,
+	b2 := &Body{
+		R:    []float64{2.5, 2.5},
+		V:    []float64{1.5, 1.5},
+		F:    []float64{1.0, 1.0},
+		Mass: 2,
 	}
 
 	if !b1.Equals(b2) {
@@ -70,26 +70,26 @@ func TestUpdate(t *testing.T) {
 
 func TestAddForce(t *testing.T) {
 	b1 := Body{
-		r:    []float64{0.1, 0.1},
-		v:    []float64{0.0, 0.0},
-		f:    []float64{0.0, 0.0},
-		mass: 1,
+		R:    []float64{0.1, 0.1},
+		V:    []float64{0.0, 0.0},
+		F:    []float64{0.0, 0.0},
+		Mass: 1,
 	}
 
 	b2 := Body{
-		r:    []float64{0.5, 0.5},
-		v:    []float64{0.0, 0.0},
-		f:    []float64{0.0, 0.0},
-		mass: 2,
+		R:    []float64{0.5, 0.5},
+		V:    []float64{0.0, 0.0},
+		F:    []float64{0.0, 0.0},
+		Mass: 2,
 	}
 
 	b1.AddForce(b2)
 
 	expectedForce := []float64{2.94775139e-10, 2.94775139e-10}
 
-	for i := 0; i < len(b1.f); i++ {
-		if expectedForce[i]-b1.f[i] > 1e-5 {
-			t.Errorf("Not Equal: %v != %v", expectedForce[i], b1.f[i])
+	for i := 0; i < len(b1.F); i++ {
+		if expectedForce[i]-b1.F[i] > 1e-5 {
+			t.Errorf("Not Equal: %v != %v", expectedForce[i], b1.F[i])
 		}
 	}
 
@@ -97,27 +97,27 @@ func TestAddForce(t *testing.T) {
 
 func TestAddBody(t *testing.T) {
 
-	b1 := Body{
-		r:    []float64{0.1, 0.1},
-		v:    []float64{0.0, 0.0},
-		f:    []float64{0.0, 0.0},
-		mass: 1,
+	b1 := &Body{
+		R:    []float64{0.1, 0.1},
+		V:    []float64{0.0, 0.0},
+		F:    []float64{0.0, 0.0},
+		Mass: 1,
 	}
 
-	b2 := Body{
-		r:    []float64{0.5, 0.5},
-		v:    []float64{0.0, 0.0},
-		f:    []float64{0.0, 0.0},
-		mass: 2,
+	b2 := &Body{
+		R:    []float64{0.5, 0.5},
+		V:    []float64{0.0, 0.0},
+		F:    []float64{0.0, 0.0},
+		Mass: 2,
 	}
 
-	b1 = b1.AddBody(b2)
+	b1.AddBody(b2)
 
-	expectedBody := Body{
-		r:    []float64{1.1 / 3, 1.1 / 3},
-		v:    []float64{0.0, 0.0},
-		f:    []float64{0.0, 0.0},
-		mass: 3,
+	expectedBody := &Body{
+		R:    []float64{1.1 / 3, 1.1 / 3},
+		V:    []float64{0.0, 0.0},
+		F:    []float64{0.0, 0.0},
+		Mass: 3,
 	}
 
 	if !b1.Equals(expectedBody) {
@@ -128,18 +128,18 @@ func TestAddBody(t *testing.T) {
 
 func TestInQuadrant(t *testing.T) {
 	b := Body{
-		r:    []float64{0.5, 0.5},
-		v:    []float64{0.0, 0.0},
-		f:    []float64{0.0, 0.0},
-		mass: 2,
+		R:    []float64{0.5, 0.5},
+		V:    []float64{0.0, 0.0},
+		F:    []float64{0.0, 0.0},
+		Mass: 2,
 	}
 	q := Quadrant{
-		base:  []float64{0.0, 0.0},
-		width: 1.0,
+		LL:    []float64{0.0, 0.0},
+		Width: 1.0,
 	}
 
 	if !b.InQuadrant(q) {
-		t.Errorf("Body %v not in quadrant %v", b, q)
+		t.Errorf("body %v not in quadrant %v", b, q)
 	}
 
 }

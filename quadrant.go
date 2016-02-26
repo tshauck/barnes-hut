@@ -7,12 +7,16 @@ import (
 
 // Long term Quadrant becomes a node.
 type Quadrant struct {
-	width float64   // the width of the quadrant
-	base  []float64 // the "lower-left" point of this quadrant
+	Width float64   `json:"Width"` // the Width of the quadrant
+	LL    []float64 `LL:"Base"`    // the "lower-left" point of this quadrant
 }
 
 func (q Quadrant) String() string {
-	return fmt.Sprintf("Quadrant{width: %v, base: %v}", q.width, q.base)
+	return fmt.Sprintf("Quadrant{Width: %v, LL: %v}", q.Width, q.LL)
+}
+
+func (q Quadrant) ContainsBody(body *Body) bool {
+	return q.Contains(body.R)
 }
 
 func (q Quadrant) Contains(point []float64) bool {
@@ -20,10 +24,10 @@ func (q Quadrant) Contains(point []float64) bool {
 	log.Debugf("Checking if point(%v) is in quadrant in %s", point, q)
 
 	for dim := 0; dim < len(point); dim++ {
-		base_open := q.base[dim]
-		base_close := base_open + q.width
+		LL_open := q.LL[dim]
+		LL_close := LL_open + q.Width
 
-		if !((base_open < point[dim]) && (point[dim] < base_close)) {
+		if !((LL_open < point[dim]) && (point[dim] < LL_close)) {
 			return false
 		}
 	}
@@ -35,17 +39,17 @@ func (q Quadrant) Equals(oq Quadrant) bool {
 
 	log.Debugf("Checking if q(%s) is equal to oq(%s)", q, oq)
 
-	if len(oq.base) != len(q.base) {
+	if len(oq.LL) != len(q.LL) {
 		// Added because of cases where [.5] == [.5, 0]
 		return false
 	}
 
-	if q.width != oq.width {
+	if q.Width != oq.Width {
 		return false
 	}
 
-	for i := range q.base {
-		if q.base[i] != oq.base[i] {
+	for i := range q.LL {
+		if q.LL[i] != oq.LL[i] {
 			return false
 		}
 	}
@@ -57,26 +61,26 @@ func (q Quadrant) Subdivide() []Quadrant {
 
 	log.Debugf("Subdividing quadrant (%s).", q)
 
-	cnt_new_quadrants := Pow(2, len(q.base))
+	cnt_new_quadrants := Pow(2, len(q.LL))
 
 	var quadrants []Quadrant
 	var offset []int
 
 	for i := 0; i < cnt_new_quadrants; i++ {
-		offset = Index2Offset(i, len(q.base))
+		offset = Index2Offset(i, len(q.LL))
 
 		var new_points []float64
 
 		j := len(offset) - 1
 		for {
-			new_points = append(new_points, q.base[j]+float64(offset[j])*(q.width/2))
+			new_points = append(new_points, q.LL[j]+float64(offset[j])*(q.Width/2))
 			if j == 0 {
 				break
 			}
 			j = j - 1
 		}
 
-		quadrants = append(quadrants, Quadrant{base: new_points, width: q.width / 2})
+		quadrants = append(quadrants, Quadrant{LL: new_points, Width: q.Width / 2})
 	}
 
 	return quadrants
