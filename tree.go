@@ -36,6 +36,32 @@ func TreesFromQuadrants(qs []Quadrant) []Tree {
 	return newTrees
 }
 
+func (t Tree) isInternalInsert(b Body) {
+	for _, newTree := range t.Ts {
+		if b.InQuadrant(newTree.Q) {
+			newTree.Insert(b)
+		}
+	}
+
+}
+
+func (t Tree) isExternalInsert(b Body) {
+	currentBody := t.B
+	*t.B = t.B.AddBody(b)
+
+	for _, newTree := range t.Ts {
+		if b.InQuadrant(newTree.Q) {
+			newTree.Insert(b)
+		}
+	}
+
+	for _, newTree := range t.Ts {
+		if b.InQuadrant(newTree.Q) {
+			newTree.Insert(*currentBody)
+		}
+	}
+}
+
 func (t Tree) Insert(b Body) {
 	// TODO(refactor)
 
@@ -51,29 +77,11 @@ func (t Tree) Insert(b Body) {
 	}
 
 	if t.IsInternal() {
-		for _, newTree := range t.Ts {
-			if b.InQuadrant(newTree.Q) {
-				newTree.Insert(b)
-			}
-		}
-
+		t.isInternalInsert(b)
 		return
 	} else {
-		currentBody := t.B
-		*t.B = t.B.AddBody(b)
-
-		for _, newTree := range t.Ts {
-			if b.InQuadrant(newTree.Q) {
-				newTree.Insert(b)
-			}
-		}
-
-		for _, newTree := range t.Ts {
-			if b.InQuadrant(newTree.Q) {
-				newTree.Insert(*currentBody)
-			}
-		}
-
+		t.isExternalInsert(b)
+		return
 	}
 
 	return
