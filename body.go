@@ -8,14 +8,11 @@ import (
 const G = 6.67e-11
 const EPS = 1e-5
 
-type Color struct{}
-
 type Body struct {
-	r     []float64 // position vector
-	v     []float64 // velocity vector
-	f     []float64 // force vector
-	mass  float64
-	color Color
+	r    []float64 // position vector
+	v    []float64 // velocity vector
+	f    []float64 // force vector
+	mass float64
 }
 
 func (b Body) Update(dt float64) {

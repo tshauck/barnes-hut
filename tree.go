@@ -17,8 +17,10 @@ func (t Tree) HasBody() bool {
 }
 
 func (t Tree) IsInternal() bool {
+
 	for _, tree := range t.Ts {
-		if tree.B == nil {
+		if tree.B != nil {
+			log.Infof("Found body (%s) on tree (%s).", tree.B, tree)
 			return true
 		}
 	}
@@ -63,7 +65,6 @@ func (t Tree) isExternalInsert(b Body) {
 }
 
 func (t Tree) Insert(b Body) {
-	// TODO(refactor)
 
 	if !t.HasChildren {
 		new_quadrants := t.Q.Subdivide()
