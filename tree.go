@@ -1,6 +1,7 @@
 package barneshut
 
 import (
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	//"reflect"
 )
@@ -12,15 +13,21 @@ type Tree struct {
 	HasChildren bool
 }
 
+func (t Tree) String() string {
+	return fmt.Sprintf("Tree{B: %s, Q: %s, Ts: %s}", t.B, t.Q, t.Ts)
+}
+
 func (t Tree) HasBody() bool {
+	//log.Infof("t.B is %v", t.B)
 	return t.B != nil
 }
 
 func (t Tree) IsInternal() bool {
+	// A tree is internal if there is at least one sub tree
+	// that has a body.
 
 	for _, tree := range t.Ts {
-		if tree.B != nil {
-			log.Infof("Found body (%s) on tree (%s).", tree.B, tree)
+		if tree.HasBody() {
 			return true
 		}
 	}
@@ -38,7 +45,7 @@ func TreesFromQuadrants(qs []Quadrant) []Tree {
 	return newTrees
 }
 
-func (t Tree) isInternalInsert(b Body) {
+func (t *Tree) isInternalInsert(b Body) {
 	for _, newTree := range t.Ts {
 		if b.InQuadrant(newTree.Q) {
 			newTree.Insert(b)
@@ -47,24 +54,30 @@ func (t Tree) isInternalInsert(b Body) {
 
 }
 
-func (t Tree) isExternalInsert(b Body) {
+func (t *Tree) isExternalInsert(b Body) {
 	currentBody := t.B
-	*t.B = t.B.AddBody(b)
+
+	// TODO(trent): Update AddBody to modify the body
+	//t.B = t.B.AddBody(b)
 
 	for _, newTree := range t.Ts {
 		if b.InQuadrant(newTree.Q) {
+			log.Infof("Putting new body in tree: %v", newTree)
 			newTree.Insert(b)
+			break
 		}
 	}
 
 	for _, newTree := range t.Ts {
-		if b.InQuadrant(newTree.Q) {
+		if currentBody.InQuadrant(newTree.Q) {
+			log.Infof("Putting old body in tree: %v", newTree)
 			newTree.Insert(*currentBody)
 		}
 	}
 }
 
-func (t Tree) Insert(b Body) {
+func (t *Tree) Insert(b Body) {
+	// Note: Tree is passed as a pointer here so that it can be modified
 
 	if !t.HasChildren {
 		new_quadrants := t.Q.Subdivide()
@@ -78,14 +91,12 @@ func (t Tree) Insert(b Body) {
 	}
 
 	if t.IsInternal() {
+		log.Infof("t is internal, inserting.")
 		t.isInternalInsert(b)
-		return
 	} else {
+		log.Infof("t is external, inserting.")
 		t.isExternalInsert(b)
-		return
 	}
-
-	return
 
 }
 
@@ -145,8 +156,6 @@ func Index2Offset(index int, n_dims int) []int {
 
 		index -= rem
 	}
-
-	log.Infof("Returned Index2Offset, got %v", offset)
 
 	return offset
 }

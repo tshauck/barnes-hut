@@ -1,6 +1,7 @@
 package barneshut
 
 import (
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"math"
 )
@@ -13,6 +14,10 @@ type Body struct {
 	v    []float64 // velocity vector
 	f    []float64 // force vector
 	mass float64
+}
+
+func (b Body) String() string {
+	return fmt.Sprintf("Body{r: %v, v: %v, f: %f, mass: %v}", b.r, b.v, b.f, b.mass)
 }
 
 func (b Body) Update(dt float64) {

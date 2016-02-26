@@ -1,6 +1,7 @@
 package barneshut
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"testing"
 )
 
@@ -54,5 +55,41 @@ func TestIsInternal(t *testing.T) {
 	if !tree.IsInternal() {
 		t.Errorf("Tree (tree) is not internal, but its tree's have bodies.")
 	}
+
+}
+
+func TestInsert(t *testing.T) {
+	// Tree Doesn't Have a Body
+	b := Body{
+		r:    []float64{0.6, 0.6},
+		v:    []float64{1.0, 0.5},
+		f:    []float64{1.0, 0.5},
+		mass: .5,
+	}
+
+	tree := &Tree{Q: Quadrant{width: 1.0, base: []float64{0.0, 0.0}}}
+
+	tree.Insert(b)
+	log.Infof("After insert, tree is: %v, it hasBody: %v", tree, tree.HasBody())
+
+	if !b.Equals(*tree.B) {
+		t.Errorf("Body, b, is not the Body in tree even though it was empty.")
+	}
+
+	if tree.IsInternal() {
+		t.Errorf("Tree is not internal though we just inserted a body.")
+	}
+
+	b2 := Body{
+		r:    []float64{0.1, 0.1},
+		v:    []float64{1.0, 0.1},
+		f:    []float64{1.0, 0.1},
+		mass: .5,
+	}
+
+	log.Infof("Before insert 2, tree is: %v", tree)
+	tree.Insert(b2)
+	log.Infof("After insert 2, tree is: %v, it hasBody: %v",
+		tree, tree.HasBody())
 
 }

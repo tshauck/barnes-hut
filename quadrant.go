@@ -79,6 +79,5 @@ func (q Quadrant) Subdivide() []Quadrant {
 		quadrants = append(quadrants, Quadrant{base: new_points, width: q.width / 2})
 	}
 
-	log.Infof("Returning quadrants: %v", quadrants)
 	return quadrants
 }
