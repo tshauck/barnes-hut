@@ -14,6 +14,7 @@ type Node struct {
 
 func (n Node) Json() []byte {
 	b, _ := json.MarshalIndent(n, "", "  ")
+	//b, _ := json.Marshal(n)
 	return b
 }
 
@@ -54,28 +55,30 @@ func (t *Node) isInternalInsert(pB *Body) {
 			newNode.Insert(pB)
 		}
 	}
-
+	t.B.AddBody(pB)
 }
 
 func (t *Node) isExternalInsert(pB *Body) {
 	log.Debugf("Entering isExternalInsert.")
-	currentBody := t.B // Kinda need to make a copy here?
+	currentBody := &Body{
+		R:     t.B.R,
+		V:     t.B.V,
+		F:     t.B.F,
+		Mass:  t.B.Mass,
+		Label: t.B.Label,
+	}
 
-	// TODO(trent): Update AddBody to modify the body
-	//log.Infof("Updating Body
-
-	for i, newNode := range t.Ts {
+	for _, newNode := range t.Ts {
 		if pB.InQuadrant(newNode.Q) {
-			log.Infof("Inserting (%s) into Ts index (%d) with Quadrant (%s)", pB, i, newNode.Q)
 			newNode.Insert(pB)
 			break
 		}
 	}
 
-	for i, newNode := range t.Ts {
+	for _, newNode := range t.Ts {
 		if currentBody.InQuadrant(newNode.Q) {
-			log.Infof("Inserting (%s) into Ts index (%d) with Quadrant (%s)", currentBody, i, newNode.Q)
 			newNode.Insert(currentBody)
+			break
 		}
 	}
 
@@ -83,20 +86,30 @@ func (t *Node) isExternalInsert(pB *Body) {
 }
 
 func (t *Node) Insert(pB *Body) {
-	// Note: Node is passed as a pointer here so that it can be modified
+	body := &Body{
+		R:     pB.R,
+		V:     pB.V,
+		F:     pB.F,
+		Mass:  pB.Mass,
+		Label: pB.Label,
+	}
+
 	if !t.HasBody() {
-		t.B = pB
+		t.B = body
+		log.Infof("Node lacks body: inserted Body: %s into Node: %s",
+			t.B.Label, t)
 		return
 	}
 
 	if t.IsInternal() {
-		t.isInternalInsert(pB)
+		log.Infof("Internal Node, inserting: %s", body)
+		t.isInternalInsert(body)
 	} else {
-
+		log.Infof("External Node, inserting: %s", body)
 		new_quadrants := t.Q.Subdivide()
 		t.Ts = NodesFromQuadrants(new_quadrants)
 
-		t.isExternalInsert(pB)
+		t.isExternalInsert(body)
 	}
 
 }

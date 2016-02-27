@@ -56,30 +56,49 @@ func TestIsInternal(t *testing.T) {
 func TestIsExternalInsert(t *testing.T) {
 
 	ab := &Body{
-		R:    []float64{-2, -1},
-		V:    []float64{0.0, 0.0},
-		F:    []float64{0.0, 0.0},
-		Mass: 1,
+		R:     []float64{-2, -1},
+		V:     []float64{0.0, 0.0},
+		F:     []float64{0.0, 0.0},
+		Mass:  1,
+		Label: "AB",
 	}
 	b := &Body{
-		R:    []float64{-1, 2},
-		V:    []float64{0.0, 0.0},
-		F:    []float64{0.0, 0.0},
-		Mass: 1,
+		R:     []float64{-1, 2},
+		V:     []float64{0.0, 0.0},
+		F:     []float64{0.0, 0.0},
+		Mass:  1,
+		Label: "B",
 	}
 	ab.AddBody(b)
 
 	a := &Body{
-		R:    []float64{-2, -1},
-		V:    []float64{0.0, 0.0},
-		F:    []float64{0.0, 0.0},
-		Mass: 1,
+		R:     []float64{-2, -1},
+		V:     []float64{0.0, 0.0},
+		F:     []float64{0.0, 0.0},
+		Mass:  1,
+		Label: "A",
+	}
+
+	testA := &Body{
+		R:     []float64{-2, -1},
+		V:     []float64{0.0, 0.0},
+		F:     []float64{0.0, 0.0},
+		Mass:  1,
+		Label: "A",
 	}
 
 	q := Quadrant{Width: 6, LL: []float64{-3, -3}}
 	subq := q.Subdivide()
 	nodes := NodesFromQuadrants(subq)
 
+	testNode := Node{
+		Q: q,
+	}
+	testNode.Insert(testA)
+	testNode.Insert(b)
+
+	// TODO(trent): Replace these with explicitly inserted indexes
+	// in the expected index location.
 	for i := range nodes {
 		if nodes[i].Q.ContainsBody(a) {
 			nodes[i].Insert(a)
@@ -95,12 +114,6 @@ func TestIsExternalInsert(t *testing.T) {
 		Q:  q,
 		Ts: nodes,
 	}
-
-	testNode := Node{
-		B: a,
-		Q: q,
-	}
-	testNode.Insert(b)
 
 	if !expectedNode.B.Equals(testNode.B) {
 		t.Errorf("%s != %s", expectedNode.B, testNode.B)
@@ -118,4 +131,5 @@ func TestIsExternalInsert(t *testing.T) {
 			t.Errorf("For index (%d) expected body (%s) got (%s)", i, eN.B, tN.B)
 		}
 	}
+
 }

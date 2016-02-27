@@ -11,19 +11,22 @@ const G = 6.67e-11
 const EPS = 1e-5
 
 type Body struct {
-	R    []float64 `json:"R"` // position vector
-	V    []float64 `json:"V"` // velocity vector
-	F    []float64 `json:"F"` // force vector
-	Mass float64   `json:"Mass"`
+	R     []float64 `json:"R"` // position vector
+	V     []float64 `json:"V"` // velocity vector
+	F     []float64 `json:"F"` // force vector
+	Mass  float64   `json:"Mass"`
+	Label string    `json:"Label"`
 }
 
 func (b Body) Json() []byte {
-	by, _ := json.MarshalIndent(b, "", "  ")
+	//by, _ := json.MarshalIndent(b, "", "  ")
+	by, _ := json.Marshal(b)
 	return by
 }
 
 func (b Body) String() string {
-	return fmt.Sprintf("Body{r: %v, v: %v, f: %f, mass: %v}", b.R, b.V, b.F, b.Mass)
+	return fmt.Sprintf("Body{Label: %s, r: %v, v: %v, f: %f, mass: %v}",
+		b.Label, b.R, b.V, b.F, b.Mass)
 }
 
 func (b Body) Update(dt float64) {
@@ -80,12 +83,16 @@ func (b *Body) AddBody(ob *Body) {
 
 	dims := len(b.R)
 
+	var R float64
+	var newR []float64
 	for dim := 0; dim < dims; dim++ {
-		b.R[dim] = ((b.R[dim] * b.Mass) + (ob.R[dim] * ob.Mass)) / total_mass
+		R = ((b.R[dim] * b.Mass) + (ob.R[dim] * ob.Mass)) / total_mass
+		newR = append(newR, R)
 	}
 
+	b.R = newR
 	b.Mass = total_mass
-
+	b.Label = fmt.Sprintf("%s,%s", b.Label, ob.Label)
 }
 
 func (b Body) InQuadrant(q Quadrant) bool {
