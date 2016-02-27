@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	//"reflect"
 )
 
 type Node struct {
@@ -23,7 +22,6 @@ func (t Node) String() string {
 }
 
 func (t Node) HasBody() bool {
-	//log.Infof("t.B is %v", t.B)
 	return t.B != nil
 }
 
@@ -60,27 +58,28 @@ func (t *Node) isInternalInsert(pB *Body) {
 }
 
 func (t *Node) isExternalInsert(pB *Body) {
+	log.Debugf("Entering isExternalInsert.")
 	currentBody := t.B // Kinda need to make a copy here?
 
 	// TODO(trent): Update AddBody to modify the body
-	log.Infof("%v", t.B)
-	t.B.AddBody(pB)
-	log.Infof("%v", t.B)
+	//log.Infof("Updating Body
 
-	for _, newNode := range t.Ts {
+	for i, newNode := range t.Ts {
 		if pB.InQuadrant(newNode.Q) {
-			log.Infof("Putting new body in node: %v", newNode)
+			log.Infof("Inserting (%s) into Ts index (%d) with Quadrant (%s)", pB, i, newNode.Q)
 			newNode.Insert(pB)
 			break
 		}
 	}
 
-	for _, newNode := range t.Ts {
+	for i, newNode := range t.Ts {
 		if currentBody.InQuadrant(newNode.Q) {
-			log.Infof("Putting old body in node: %v", newNode)
+			log.Infof("Inserting (%s) into Ts index (%d) with Quadrant (%s)", currentBody, i, newNode.Q)
 			newNode.Insert(currentBody)
 		}
 	}
+
+	t.B.AddBody(pB)
 }
 
 func (t *Node) Insert(pB *Body) {
@@ -93,6 +92,7 @@ func (t *Node) Insert(pB *Body) {
 	if t.IsInternal() {
 		t.isInternalInsert(pB)
 	} else {
+
 		new_quadrants := t.Q.Subdivide()
 		t.Ts = NodesFromQuadrants(new_quadrants)
 

@@ -2,7 +2,6 @@ package barneshut
 
 import (
 	"fmt"
-	log "github.com/Sirupsen/logrus"
 )
 
 // Long term Quadrant becomes a node.
@@ -21,8 +20,6 @@ func (q Quadrant) ContainsBody(body *Body) bool {
 
 func (q Quadrant) Contains(point []float64) bool {
 
-	log.Debugf("Checking if point(%v) is in quadrant in %s", point, q)
-
 	for dim := 0; dim < len(point); dim++ {
 		LL_open := q.LL[dim]
 		LL_close := LL_open + q.Width
@@ -36,8 +33,6 @@ func (q Quadrant) Contains(point []float64) bool {
 }
 
 func (q Quadrant) Equals(oq Quadrant) bool {
-
-	log.Debugf("Checking if q(%s) is equal to oq(%s)", q, oq)
 
 	if len(oq.LL) != len(q.LL) {
 		// Added because of cases where [.5] == [.5, 0]
@@ -58,8 +53,6 @@ func (q Quadrant) Equals(oq Quadrant) bool {
 }
 
 func (q Quadrant) Subdivide() []Quadrant {
-
-	log.Debugf("Subdividing quadrant (%s).", q)
 
 	cnt_new_quadrants := Pow(2, len(q.LL))
 

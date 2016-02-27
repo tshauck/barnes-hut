@@ -1,6 +1,7 @@
 package barneshut
 
 import (
+	"encoding/json"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"math"
@@ -14,6 +15,11 @@ type Body struct {
 	V    []float64 `json:"V"` // velocity vector
 	F    []float64 `json:"F"` // force vector
 	Mass float64   `json:"Mass"`
+}
+
+func (b Body) Json() []byte {
+	by, _ := json.MarshalIndent(b, "", "  ")
+	return by
 }
 
 func (b Body) String() string {
@@ -70,9 +76,7 @@ func (b Body) AddForce(ob Body) {
 
 func (b *Body) AddBody(ob *Body) {
 
-	log.Infof("Starting here: %s, %s", b, ob)
 	total_mass := b.Mass + ob.Mass
-	log.Infof("Adding Body: total_mass (%v) = (%v) + (%v)", total_mass, b.Mass, ob.Mass)
 
 	dims := len(b.R)
 
@@ -81,7 +85,6 @@ func (b *Body) AddBody(ob *Body) {
 	}
 
 	b.Mass = total_mass
-	log.Infof("Ending here: %s", b)
 
 }
 

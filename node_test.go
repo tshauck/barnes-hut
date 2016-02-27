@@ -1,13 +1,8 @@
 package barneshut
 
 import (
-	log "github.com/Sirupsen/logrus"
 	"testing"
 )
-
-func init() {
-
-}
 
 func TestPow(t *testing.T) {
 
@@ -73,7 +68,6 @@ func TestIsExternalInsert(t *testing.T) {
 		Mass: 1,
 	}
 	ab.AddBody(b)
-	log.Infof("ab: %s", ab)
 
 	a := &Body{
 		R:    []float64{-2, -1},
@@ -102,10 +96,6 @@ func TestIsExternalInsert(t *testing.T) {
 		Ts: nodes,
 	}
 
-	log.Infof("%s", string(expectedNode.Json()))
-
-	return
-
 	testNode := Node{
 		B: a,
 		Q: q,
@@ -120,45 +110,12 @@ func TestIsExternalInsert(t *testing.T) {
 		eN := expectedNode.Ts[i]
 		tN := testNode.Ts[i]
 
-		log.Infof("For index (%d) expected body (%s) got (%s)", i, eN.B, tN.B)
-		//if !eN.B.Equals(tN.B) {
-		//t.Errorf("For index (%d) expected body (%s) got (%s)", i, eN.B, tN.B)
-		//}
+		if eN.B == nil && tN.B == nil {
+			continue
+		}
+
+		if (eN.B != nil && tN.B == nil) || (eN.B == nil && tN.B != nil) || !eN.B.Equals(tN.B) {
+			t.Errorf("For index (%d) expected body (%s) got (%s)", i, eN.B, tN.B)
+		}
 	}
 }
-
-//func TestInsert(t *testing.T) {
-//// Node Doesn't Have a Body
-//b := &Body{
-//r:    []float64{0.6, 0.6},
-//v:    []float64{1.0, 0.5},
-//f:    []float64{1.0, 0.5},
-//mass: .5,
-//}
-
-//node := &Node{Q: Quadrant{width: 1.0, base: []float64{0.0, 0.0}}}
-
-//node.Insert(b)
-//log.Infof("After insert, node is: %v, it hasBody: %v", node, node.HasBody())
-
-//if !b.Equals(*node.B) {
-//t.Errorf("Body, b, is not the Body in node even though it was empty.")
-//}
-
-//if node.IsInternal() {
-//t.Errorf("Node is not internal though we just inserted a body.")
-//}
-
-//b2 := Body{
-//r:    []float64{0.1, 0.1},
-//v:    []float64{1.0, 0.1},
-//f:    []float64{1.0, 0.1},
-//mass: .5,
-//}
-
-//log.Infof("Before insert 2, node is: %v", node)
-//node.Insert(&b2)
-//log.Infof("After insert 2, node is: %v, it hasBody: %v",
-//node, node.HasBody())
-
-//}
