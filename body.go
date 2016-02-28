@@ -37,7 +37,7 @@ func (b Body) Update(dt float64) {
 	}
 }
 
-func (b Body) DistantceTo(ob Body) float64 {
+func (b Body) DistanceTo(ob Body) float64 {
 
 	distance := 0.0
 
@@ -66,7 +66,7 @@ func (b Body) Equals(ob *Body) bool {
 func (b Body) AddForce(ob Body) {
 
 	// TODO(trent): see test, may need some work.
-	overall_distance := b.DistantceTo(ob)
+	overall_distance := b.DistanceTo(ob)
 	totalForce := (G * b.Mass * ob.Mass) / math.Pow(overall_distance, 2)
 
 	log.Debugf("Distance between bodies is (%f), and its Force is (%f)", overall_distance, totalForce)

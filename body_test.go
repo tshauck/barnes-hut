@@ -39,7 +39,7 @@ func TestDistanceTo(t *testing.T) {
 		R: []float64{0.0, 0.0},
 	}
 
-	actual := b1.DistantceTo(b2)
+	actual := b1.DistanceTo(b2)
 
 	if expected != actual {
 		t.Errorf("Distance was %f, expected %f", actual, expected)
