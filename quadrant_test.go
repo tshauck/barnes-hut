@@ -47,6 +47,28 @@ func TestEquals(t *testing.T) {
 		t.Errorf("Quadrants are not equal!")
 	}
 
+	q3 := Quadrant{
+		Width: 2, // Different width than q
+		LL:    []float64{0.0, 0.0},
+	}
+
+	q4 := Quadrant{
+		Width: 1,
+		LL:    []float64{0.0, 0.0, 0.0}, // Different dimensions
+	}
+
+	q5 := Quadrant{
+		Width: 1,
+		LL:    []float64{0.0, 0.1}, // Different dimensions
+	}
+	qs := []Quadrant{q3, q4, q5}
+
+	for i := range qs {
+		if q.Equals(qs[i]) {
+			t.Errorf("Q(%s) != Q(%s)", q, qs[i])
+		}
+	}
+
 }
 
 func TestQuadrantSubdivide(t *testing.T) {
