@@ -6,6 +6,10 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+const (
+	theta = 0.5
+)
+
 type Node struct {
 	B  *Body    `json:"Body"`
 	Q  Quadrant `json:"Quadrant"`
@@ -114,8 +118,30 @@ func (t *Node) Insert(pB *Body) {
 
 }
 
-func (t Node) UpdateForce(b Body) {
-	// logic to update the forces given all
+func (n *Node) UseBody(b *Body) bool {
+	// Given that we're on Node, n, do we use the body in the Node or
+	// use traverse down the Tree.
+
+	// Also, if the Node is internal there are no possible children to use
+	// for a more precise center of mass, therefore, use the body.
+
+	return ((b.DistanceTo(*n.B) / n.Q.Width) > theta) && !n.IsInternal()
+}
+
+func (n *Node) UpdateForce(b *Body) {
+	if n.UseBody(b) {
+		// We use the body at node n, and don't traverse its children.
+		b.AddForce(*n.B)
+	} else {
+		// Body is too close, use its children's bodies.
+		for i := range n.Ts {
+			// If it's the same point, don't UpdateForece
+			if b.Label == n.B.Label {
+				continue
+			}
+			n.Ts[i].UpdateForce(b)
+		}
+	}
 }
 
 func NodeFromQuadrant(q Quadrant) Node {
