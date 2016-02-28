@@ -54,6 +54,10 @@ func (b Body) Equals(ob *Body) bool {
 		return math.Abs(a-b) < EPS
 	}
 
+	if b.Mass != ob.Mass {
+		return false
+	}
+
 	for i := 0; i < len(b.R); i++ {
 		if !(compare_floats(b.R[i], ob.R[i]) && compare_floats(b.V[i], ob.V[i]) && compare_floats(b.F[i], ob.F[i])) {
 			return false

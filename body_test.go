@@ -22,9 +22,30 @@ func TestBodyEquals(t *testing.T) {
 	}
 
 	if !b1.Equals(b2) {
-
 		t.Errorf("b1(%v) != b2(%v)", b1, b2)
+	}
 
+	diff_position := &Body{
+		R:     []float64{0.3, 0.0},
+		V:     []float64{0.0, 0.0},
+		F:     []float64{0.0, 0.0},
+		Mass:  0,
+		Label: "Diff Position",
+	}
+
+	diff_mass := &Body{
+		R:     []float64{0.0, 0.0},
+		V:     []float64{0.0, 0.0},
+		F:     []float64{0.0, 0.0},
+		Mass:  2,
+		Label: "Diff Mass",
+	}
+
+	bodies := []*Body{diff_position, diff_mass}
+	for _, body := range bodies {
+		if body.Equals(b1) {
+			t.Errorf("Test body %s is equal to reference body, it shouldn't be.")
+		}
 	}
 
 }
