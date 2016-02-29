@@ -2,7 +2,6 @@ package barneshut
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 )
 
@@ -17,7 +16,6 @@ func (t *Tree) Insert(b *Body) {
 func (t Tree) Save(f string) error {
 	b, err := json.Marshal(t)
 
-	fmt.Println(string(b))
 	if err != nil {
 		return err
 	}

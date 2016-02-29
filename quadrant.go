@@ -2,6 +2,7 @@ package barneshut
 
 import (
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 )
 
 // Long term Quadrant becomes a node.
@@ -53,6 +54,7 @@ func (q Quadrant) Equals(oq Quadrant) bool {
 }
 
 func (q Quadrant) Subdivide() []Quadrant {
+	log.Infof("Subdividing quadrant: %s", q)
 
 	cnt_new_quadrants := Pow(2, len(q.LL))
 
@@ -61,18 +63,20 @@ func (q Quadrant) Subdivide() []Quadrant {
 
 	for i := 0; i < cnt_new_quadrants; i++ {
 		offset = Index2Offset(i, len(q.LL))
+		log.Infof("Working on offset %v", offset)
 
 		var new_points []float64
 
-		j := len(offset) - 1
+		j := 0
 		for {
 			new_points = append(new_points, q.LL[j]+float64(offset[j])*(q.Width/2))
-			if j == 0 {
+			if j == len(offset)-1 {
 				break
 			}
-			j = j - 1
+			j++
 		}
 
+		log.Infof("Got new points: %v", new_points)
 		quadrants = append(quadrants, Quadrant{LL: new_points, Width: q.Width / 2})
 	}
 

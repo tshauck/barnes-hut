@@ -1,8 +1,38 @@
 package barneshut
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"testing"
 )
+
+func init() {
+	log.SetLevel(log.DebugLevel)
+}
+
+func TestIndex2Offset(t *testing.T) {
+
+	indexes := []int{0, 1, 2, 3}
+	ndims := 2
+	expectedOffset := [][]int{
+		[]int{0, 0},
+		[]int{0, 1},
+		[]int{1, 0},
+		[]int{1, 1},
+	}
+
+	for i := range indexes {
+		actual := Index2Offset(indexes[i], ndims)
+
+		for idx := 0; idx < ndims; idx++ {
+			if actual[idx] != expectedOffset[i][idx] {
+				t.Errorf("Expected (%v) got (%v)", expectedOffset[i],
+					Index2Offset(indexes[i], ndims))
+			}
+
+		}
+	}
+
+}
 
 func TestPow(t *testing.T) {
 
@@ -34,6 +64,18 @@ func TestNodeHasBody(t *testing.T) {
 	}
 }
 
+//func TestUpdateForce(t *testing.T) {
+//tt := testTree()
+
+//b := tt.Root.B
+//fmt.Println(string(b.Json()))
+
+//tt.Root.UpdateForce(b)
+
+//fmt.Println(string(b.Json()))
+
+//}
+
 func TestIsInternal(t *testing.T) {
 	b := Body{
 		R:    []float64{1.0},
@@ -53,70 +95,24 @@ func TestIsInternal(t *testing.T) {
 
 }
 
-func TestIsExternalInsert(t *testing.T) {
+func TestInsert(t *testing.T) {
 
-	ab := &Body{
-		R:     []float64{-2, -1},
-		V:     []float64{0.0, 0.0},
-		F:     []float64{0.0, 0.0},
-		Mass:  1,
-		Label: "AB",
-	}
-	b := &Body{
-		R:     []float64{-1, 2},
-		V:     []float64{0.0, 0.0},
-		F:     []float64{0.0, 0.0},
-		Mass:  1,
-		Label: "B",
-	}
-	ab.AddBody(b)
-
-	a := &Body{
-		R:     []float64{-2, -1},
-		V:     []float64{0.0, 0.0},
-		F:     []float64{0.0, 0.0},
-		Mass:  1,
-		Label: "A",
-	}
-
-	testA := &Body{
-		R:     []float64{-2, -1},
-		V:     []float64{0.0, 0.0},
-		F:     []float64{0.0, 0.0},
-		Mass:  1,
-		Label: "A",
-	}
-
-	q := Quadrant{Width: 6, LL: []float64{-3, -3}}
-	subq := q.Subdivide()
-	nodes := NodesFromQuadrants(subq)
+	bodies := exampleBodies()
 
 	testNode := Node{
-		Q: q,
-	}
-	testNode.Insert(testA)
-	testNode.Insert(b)
-
-	// TODO(trent): Replace these with explicitly inserted indexes
-	// in the expected index location.
-	for i := range nodes {
-		if nodes[i].Q.ContainsBody(a) {
-			nodes[i].Insert(a)
-		}
-
-		if nodes[i].Q.ContainsBody(b) {
-			nodes[i].Insert(b)
-		}
+		Q: Quadrant{Width: 6, LL: []float64{-3, -3}},
 	}
 
-	expectedNode := Node{
-		B:  ab,
-		Q:  q,
-		Ts: nodes,
-	}
+	testNode.Insert(bodies["A"])
+	testNode.Insert(bodies["B"])
+	testNode.Insert(bodies["C"])
+	testNode.Insert(bodies["D"])
 
-	if !expectedNode.B.Equals(testNode.B) {
-		t.Errorf("%s != %s", expectedNode.B, testNode.B)
+	expected := testTree()
+	expectedNode := expected.Root
+
+	if !expectedNode.B.EqualPosition(testNode.B) {
+		t.Errorf("Root bodies not equal: %s != %s", expectedNode.B, testNode.B)
 	}
 
 	for i := range expectedNode.Ts {
@@ -127,8 +123,8 @@ func TestIsExternalInsert(t *testing.T) {
 			continue
 		}
 
-		if (eN.B != nil && tN.B == nil) || (eN.B == nil && tN.B != nil) || !eN.B.Equals(tN.B) {
-			t.Errorf("For index (%d) expected body (%s) got (%s)", i, eN.B, tN.B)
+		if (eN.B != nil && tN.B == nil) || (eN.B == nil && tN.B != nil) || !eN.B.EqualPosition(tN.B) {
+			t.Errorf("Expected Body: %s, Actual Body: %s", eN.B, tN.B)
 		}
 	}
 

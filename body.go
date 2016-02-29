@@ -19,7 +19,6 @@ type Body struct {
 }
 
 func (b Body) Json() []byte {
-	//by, _ := json.MarshalIndent(b, "", "  ")
 	by, _ := json.Marshal(b)
 	return by
 }
@@ -115,7 +114,7 @@ func (b *Body) AddBody(ob *Body) {
 
 	b.R = newR
 	b.Mass = total_mass
-	b.Label = fmt.Sprintf("%s,%s", b.Label, ob.Label)
+	b.Label = fmt.Sprintf("%s%s", b.Label, ob.Label)
 }
 
 func (b Body) InQuadrant(q Quadrant) bool {

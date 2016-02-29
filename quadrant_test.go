@@ -7,7 +7,7 @@ import (
 
 func init() {
 	//Move this to a different place, like main.go?
-	log.SetLevel(log.InfoLevel)
+	log.SetLevel(log.WarnLevel)
 }
 
 func TestContains(t *testing.T) {
@@ -77,8 +77,8 @@ func TestQuadrantSubdivide(t *testing.T) {
 
 	expected := []Quadrant{
 		Quadrant{Width: .5, LL: []float64{0.0, 0.0}},
-		Quadrant{Width: .5, LL: []float64{0.5, 0.0}},
 		Quadrant{Width: .5, LL: []float64{0.0, 0.5}},
+		Quadrant{Width: .5, LL: []float64{0.5, 0.0}},
 		Quadrant{Width: .5, LL: []float64{0.5, 0.5}},
 	}
 

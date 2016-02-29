@@ -56,6 +56,7 @@ func NodesFromQuadrants(qs []Quadrant) []*Node {
 func (t *Node) isInternalInsert(pB *Body) {
 	for _, newNode := range t.Ts {
 		if pB.InQuadrant(newNode.Q) {
+			log.Infof("Inserting (internal) Body:%s into Q: %s", pB.Label, newNode.Q)
 			newNode.Insert(pB)
 		}
 	}
@@ -63,7 +64,6 @@ func (t *Node) isInternalInsert(pB *Body) {
 }
 
 func (t *Node) isExternalInsert(pB *Body) {
-	log.Debugf("Entering isExternalInsert.")
 	currentBody := &Body{
 		R:     t.B.R,
 		V:     t.B.V,
@@ -73,14 +73,18 @@ func (t *Node) isExternalInsert(pB *Body) {
 	}
 
 	for _, newNode := range t.Ts {
+		log.Infof("For pB(%s), checking quadrant %s", pB.Label, newNode.Q)
 		if pB.InQuadrant(newNode.Q) {
+			log.Infof("Inserting (external) Body:%s into Q: %s", pB.Label, newNode.Q)
 			newNode.Insert(pB)
 			break
 		}
 	}
 
 	for _, newNode := range t.Ts {
+		log.Infof("For currentBody(%s), checking quadrant %s", currentBody.Label, newNode.Q)
 		if currentBody.InQuadrant(newNode.Q) {
+			log.Infof("Inserting (external) Body:%s into Q: %s", currentBody.Label, newNode.Q)
 			newNode.Insert(currentBody)
 			break
 		}
@@ -90,6 +94,7 @@ func (t *Node) isExternalInsert(pB *Body) {
 }
 
 func (t *Node) Insert(pB *Body) {
+	log.Infof("Inserting body: %s", pB.Label)
 	body := &Body{
 		R:     pB.R,
 		V:     pB.V,
@@ -99,19 +104,22 @@ func (t *Node) Insert(pB *Body) {
 	}
 
 	if !t.HasBody() {
+		log.Infof("t doesn't have a body, running t.B = body (%s)", body.Label)
 		t.B = body
-		log.Infof("Node lacks body: inserted Body: %s into Node: %s",
-			t.B.Label, t)
 		return
 	}
 
 	if t.IsInternal() {
-		log.Infof("Internal Node, inserting: %s", body)
+		log.Infof("t is Internal, running internal insert body (%s)", body.Label)
 		t.isInternalInsert(body)
 	} else {
-		log.Infof("External Node, inserting: %s", body)
-		new_quadrants := t.Q.Subdivide()
-		t.Ts = NodesFromQuadrants(new_quadrants)
+		log.Infof("t is External, running external insert, body (%s).", body.Label)
+		if t.Ts == nil {
+			log.Info(t.Q)
+			new_quadrants := t.Q.Subdivide()
+			t.Ts = NodesFromQuadrants(new_quadrants)
+			log.Infof("t lacked Ts, adding quadrants: %s", t.Ts)
+		}
 
 		t.isExternalInsert(body)
 	}
@@ -130,12 +138,13 @@ func (n *Node) UseBody(b *Body) bool {
 
 func (n *Node) UpdateForce(b *Body) {
 	if n.UseBody(b) {
+		log.Debug("b is far enough away, using.")
 		// We use the body at node n, and don't traverse its children.
 		b.AddForce(*n.B)
 	} else {
-		// Body is too close, use its children's bodies.
+		log.Infof("b is too close, using children's")
 		for i := range n.Ts {
-			// If it's the same point, don't UpdateForece
+			// If it's the same point, don't UpdateForce
 			if b.Label == n.B.Label {
 				continue
 			}
