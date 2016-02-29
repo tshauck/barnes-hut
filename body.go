@@ -48,6 +48,25 @@ func (b Body) DistanceTo(ob Body) float64 {
 	return math.Sqrt(distance)
 }
 
+func (b Body) EqualPosition(ob *Body) bool {
+
+	compare_floats := func(a float64, b float64) bool {
+		return math.Abs(a-b) < EPS
+	}
+
+	if b.Mass != ob.Mass {
+		return false
+	}
+
+	for i := 0; i < len(b.R); i++ {
+		if !(compare_floats(b.R[i], ob.R[i])) {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (b Body) Equals(ob *Body) bool {
 
 	compare_floats := func(a float64, b float64) bool {
