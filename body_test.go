@@ -91,17 +91,19 @@ func TestUpdate(t *testing.T) {
 
 func TestAddForce(t *testing.T) {
 	b1 := Body{
-		R:    []float64{0.1, 0.1},
-		V:    []float64{0.0, 0.0},
-		F:    []float64{0.0, 0.0},
-		Mass: 1,
+		R:     []float64{0.1, 0.1},
+		V:     []float64{0.0, 0.0},
+		F:     []float64{0.0, 0.0},
+		Mass:  1,
+		Label: "A",
 	}
 
 	b2 := Body{
-		R:    []float64{0.5, 0.5},
-		V:    []float64{0.0, 0.0},
-		F:    []float64{0.0, 0.0},
-		Mass: 2,
+		R:     []float64{0.5, 0.5},
+		V:     []float64{0.0, 0.0},
+		F:     []float64{0.0, 0.0},
+		Mass:  2,
+		Label: "B",
 	}
 
 	b1.AddForce(b2)

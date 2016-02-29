@@ -85,18 +85,21 @@ func (b Body) Equals(ob *Body) bool {
 	return true
 }
 
-func (b Body) AddForce(ob Body) {
-
-	// TODO(trent): see test, may need some work.
+func (b *Body) AddForce(ob Body) {
+	fmt.Printf("Adding force from %s to %s.\n", ob.Label, b.Label)
 	overall_distance := b.DistanceTo(ob)
 	totalForce := (G * b.Mass * ob.Mass) / math.Pow(overall_distance, 2)
 
 	log.Debugf("Distance between bodies is (%f), and its Force is (%f)", overall_distance, totalForce)
 
+	var newForce []float64
 	for i := 0; i < len(b.R); i++ {
 		d := ob.R[i] - b.R[i]
-		b.F[i] += totalForce * d / overall_distance
+		newForce = append(newForce, b.F[i]+(totalForce*d/overall_distance))
 	}
+
+	b.F = newForce
+	fmt.Printf("%s's new force: %v\n", b.Label, b.F)
 }
 
 func (b *Body) AddBody(ob *Body) {

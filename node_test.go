@@ -64,17 +64,20 @@ func TestNodeHasBody(t *testing.T) {
 	}
 }
 
-//func TestUpdateForce(t *testing.T) {
-//tt := testTree()
+func TestUpdateForce(t *testing.T) {
+	bodies := exampleBodies()
+	tt := testTree()
 
-//b := tt.Root.B
-//fmt.Println(string(b.Json()))
+	body := &Body{
+		Label: bodies["A"].Label,
+		V:     bodies["A"].V,
+		F:     bodies["A"].F,
+		R:     bodies["A"].R,
+		Mass:  bodies["A"].Mass,
+	}
 
-//tt.Root.UpdateForce(b)
-
-//fmt.Println(string(b.Json()))
-
-//}
+	tt.Root.UpdateForce(body)
+}
 
 func TestIsInternal(t *testing.T) {
 	b := Body{

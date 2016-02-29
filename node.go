@@ -133,21 +133,25 @@ func (n *Node) UseBody(b *Body) bool {
 	// Also, if the Node is internal there are no possible children to use
 	// for a more precise center of mass, therefore, use the body.
 
+	fmt.Printf("Benchmark for UseBody(%s): %v\n", b.Label, (b.DistanceTo(*n.B) / n.Q.Width))
 	return ((b.DistanceTo(*n.B) / n.Q.Width) > theta) && !n.IsInternal()
 }
 
 func (n *Node) UpdateForce(b *Body) {
 	if n.UseBody(b) {
-		log.Debug("b is far enough away, using.")
+		fmt.Printf("%s is far enough away from %s, using.\n", b.Label, n.B.Label)
 		// We use the body at node n, and don't traverse its children.
 		b.AddForce(*n.B)
 	} else {
-		log.Infof("b is too close, using children's")
+		fmt.Printf("%s is too close to %s, using children's.\n", b.Label, n.B.Label)
 		for i := range n.Ts {
 			// If it's the same point, don't UpdateForce
-			if b.Label == n.B.Label {
+			if (n.Ts[i].B == nil) || (b.Label == n.Ts[i].B.Label) {
+				fmt.Printf("Skipping index %d for %s.\n", i, b.Label)
 				continue
 			}
+
+			fmt.Printf("Updating force for %s with %s.\n", b.Label, n.Ts[i].B.Label)
 			n.Ts[i].UpdateForce(b)
 		}
 	}
