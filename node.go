@@ -19,7 +19,7 @@ const (
 type Node struct {
 	B  *Body    `json:"Body"`
 	Q  Quadrant `json:"Quadrant"`
-	Ts []*Node  `json:"Nodes"`
+	Ns []*Node  `json:"Nodes"`
 }
 
 // Json returns the byte array of the json representation of a Node.
@@ -30,7 +30,7 @@ func (n Node) Json() []byte {
 
 // String returns a string in pretty print form for the Node.
 func (t Node) String() string {
-	return fmt.Sprintf("Node{B: %s, Q: %s, Ts: %s}", t.B, t.Q, t.Ts)
+	return fmt.Sprintf("Node{B: %s, Q: %s, Ns: %s}", t.B, t.Q, t.Ns)
 }
 
 // HasBody returns a boolean that is true if the Body has a non-nil Body.
@@ -41,7 +41,7 @@ func (t Node) HasBody() bool {
 // IsInternal determines if a node is internal to the overall Tree.  A Node
 // is internal if at least one of its children has a body.
 func (t Node) IsInternal() bool {
-	for _, node := range t.Ts {
+	for _, node := range t.Ns {
 		if node.HasBody() {
 			return true
 		}
@@ -63,7 +63,7 @@ func NodesFromQuadrants(qs []Quadrant) []*Node {
 
 func (t *Node) isInternalInsert(pB *Body) {
 	// isInternalInsert inserts a body into a Node if the Node isInternal.
-	for _, newNode := range t.Ts {
+	for _, newNode := range t.Ns {
 		if pB.InQuadrant(newNode.Q) {
 			log.Infof("Inserting (internal) Body:%s into Q: %s", pB.Label, newNode.Q)
 			newNode.Insert(pB)
@@ -83,7 +83,7 @@ func (t *Node) isExternalInsert(pB *Body) {
 	}
 
 	// First inserts the passed body into the array.
-	for _, newNode := range t.Ts {
+	for _, newNode := range t.Ns {
 		log.Infof("For pB(%s), checking quadrant %s", pB.Label, newNode.Q)
 		if pB.InQuadrant(newNode.Q) {
 			log.Infof("Inserting (external) Body:%s into Q: %s", pB.Label, newNode.Q)
@@ -93,7 +93,7 @@ func (t *Node) isExternalInsert(pB *Body) {
 	}
 
 	// Then reinsert the body that was in the Node position in the first place.
-	for _, newNode := range t.Ts {
+	for _, newNode := range t.Ns {
 		log.Infof("For currentBody(%s), checking quadrant %s", currentBody.Label, newNode.Q)
 		if currentBody.InQuadrant(newNode.Q) {
 			log.Infof("Inserting (external) Body:%s into Q: %s", currentBody.Label, newNode.Q)
@@ -129,9 +129,9 @@ func (t *Node) Insert(pB *Body) {
 		t.isInternalInsert(body)
 	} else {
 		log.Infof("t is External, running external insert, body (%s).", body.Label)
-		if t.Ts == nil {
+		if t.Ns == nil {
 			new_quadrants := t.Q.Subdivide()
-			t.Ts = NodesFromQuadrants(new_quadrants)
+			t.Ns = NodesFromQuadrants(new_quadrants)
 		}
 
 		t.isExternalInsert(body)
@@ -151,13 +151,13 @@ func (n *Node) UpdateForce(b *Body) {
 		// We use the body at node n, and don't traverse its children.
 		b.AddForce(*n.B)
 	} else {
-		for i := range n.Ts {
-			if (n.Ts[i].B == nil) || (b.Label == n.Ts[i].B.Label) {
+		for i := range n.Ns {
+			if (n.Ns[i].B == nil) || (b.Label == n.Ns[i].B.Label) {
 				fmt.Printf("Skipping index %d for %s.\n", i, b.Label)
 				continue
 			}
 
-			n.Ts[i].UpdateForce(b)
+			n.Ns[i].UpdateForce(b)
 		}
 	}
 }

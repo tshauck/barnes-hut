@@ -32,9 +32,9 @@ func testTree() *Tree {
 	CDNs[1].B = bodies["C"]
 	CDNs[2].B = bodies["D"]
 
-	ns[2].Ts = CDNs
+	ns[2].Ns = CDNs
 
-	RootNode := &Node{B: bodies["ABCD"], Q: q, Ts: ns}
+	RootNode := &Node{B: bodies["ABCD"], Q: q, Ns: ns}
 
 	return &Tree{Root: RootNode}
 

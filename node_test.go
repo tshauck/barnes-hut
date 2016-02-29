@@ -92,7 +92,7 @@ func TestIsInternal(t *testing.T) {
 	// A node is internal if at least one subnode has a body
 	node := Node{B: &b}
 	node2 := Node{B: &b}
-	node.Ts = []*Node{&node2}
+	node.Ns = []*Node{&node2}
 
 	if !node.IsInternal() {
 		t.Errorf("Node (node) is not internal, but its node's have bodies.")
@@ -120,9 +120,9 @@ func TestInsert(t *testing.T) {
 		t.Errorf("Root bodies not equal: %s != %s", expectedNode.B, testNode.B)
 	}
 
-	for i := range expectedNode.Ts {
-		eN := expectedNode.Ts[i]
-		tN := testNode.Ts[i]
+	for i := range expectedNode.Ns {
+		eN := expectedNode.Ns[i]
+		tN := testNode.Ns[i]
 
 		if eN.B == nil && tN.B == nil {
 			continue
