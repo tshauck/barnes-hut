@@ -3,8 +3,11 @@
 package barneshut
 
 import (
+	"bufio"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"os"
 )
 
 // Tree is struct that contains a pointer to the root Node.
@@ -43,4 +46,47 @@ func TreeFromJsonFile(f string) (*Tree, error) {
 
 	return &t, nil
 
+}
+
+// TreeFromBodies takes an array of Bodies and returns
+// a populated Tree.
+func TreeFromBodies(bs []*Body) (*Tree, error) {
+
+	// TODO(trent): need to infer q somehow, maybe this is
+	// set as a config option
+	q := Quadrant{Width: 6, LL: []float64{-3, -3}}
+
+	t := &Tree{Root: &Node{Q: q}}
+
+	for _, b := range bs {
+		fmt.Printf("Inserting Body: %s\n", b)
+		t.Insert(b)
+	}
+
+	return t, nil
+}
+
+// TreeFromBodyFile takes a file that contains JSON rows of Bodies
+// and returns a populated Tree.
+func TreeFromBodyFile(f string) (*Tree, error) {
+	file, err := os.Open(f)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var bs []*Body
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		var b *Body
+		err = json.Unmarshal(scanner.Bytes(), &b)
+		if err != nil {
+			return nil, err
+		}
+
+		bs = append(bs, b)
+	}
+
+	return TreeFromBodies(bs)
 }
