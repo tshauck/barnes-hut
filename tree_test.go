@@ -1,3 +1,5 @@
+// Copyright (C) 2016 Trent Hauck - All Rights Reserved
+
 package barneshut
 
 import (

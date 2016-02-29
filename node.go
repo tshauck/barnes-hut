@@ -1,3 +1,5 @@
+// Copyright (C) 2016 Trent Hauck - All Rights Reserved
+
 package barneshut
 
 import (
@@ -7,33 +9,38 @@ import (
 )
 
 const (
+	// theta is the benchmark value that determines if a set of bodies are sufficiently
+	// far enough to treat as one body, or they need to be examined closer.
 	theta = 0.5
 )
 
+// Node is a single position in space. It contains a quadrant describing that location and optionally
+// a Body, B, and an array of children Nodes that are all within the the Node's Quadrant.
 type Node struct {
 	B  *Body    `json:"Body"`
 	Q  Quadrant `json:"Quadrant"`
 	Ts []*Node  `json:"Nodes"`
 }
 
+// Json returns the byte array of the json representation of a Node.
 func (n Node) Json() []byte {
-	b, _ := json.MarshalIndent(n, "", "  ")
-	//b, _ := json.Marshal(n)
+	b, _ := json.Marshal(n)
 	return b
 }
 
+// String returns a string in pretty print form for the Node.
 func (t Node) String() string {
 	return fmt.Sprintf("Node{B: %s, Q: %s, Ts: %s}", t.B, t.Q, t.Ts)
 }
 
+// HasBody returns a boolean that is true if the Body has a non-nil Body.
 func (t Node) HasBody() bool {
 	return t.B != nil
 }
 
+// IsInternal determines if a node is internal to the overall Tree.  A Node
+// is internal if at least one of its children has a body.
 func (t Node) IsInternal() bool {
-	// A node is internal if there is at least one sub node
-	// that has a body.
-
 	for _, node := range t.Ts {
 		if node.HasBody() {
 			return true
@@ -43,6 +50,7 @@ func (t Node) IsInternal() bool {
 	return false
 }
 
+// NodesFromQuadrants retruns a list of Nodes of a list of Quadrants.
 func NodesFromQuadrants(qs []Quadrant) []*Node {
 	var newNodes []*Node
 
@@ -54,6 +62,7 @@ func NodesFromQuadrants(qs []Quadrant) []*Node {
 }
 
 func (t *Node) isInternalInsert(pB *Body) {
+	// isInternalInsert inserts a body into a Node if the Node isInternal.
 	for _, newNode := range t.Ts {
 		if pB.InQuadrant(newNode.Q) {
 			log.Infof("Inserting (internal) Body:%s into Q: %s", pB.Label, newNode.Q)
@@ -64,6 +73,7 @@ func (t *Node) isInternalInsert(pB *Body) {
 }
 
 func (t *Node) isExternalInsert(pB *Body) {
+	// isExternalInsert inserts a body into a Node if the Node isExternal.
 	currentBody := &Body{
 		R:     t.B.R,
 		V:     t.B.V,
@@ -72,6 +82,7 @@ func (t *Node) isExternalInsert(pB *Body) {
 		Label: t.B.Label,
 	}
 
+	// First inserts the passed body into the array.
 	for _, newNode := range t.Ts {
 		log.Infof("For pB(%s), checking quadrant %s", pB.Label, newNode.Q)
 		if pB.InQuadrant(newNode.Q) {
@@ -81,6 +92,7 @@ func (t *Node) isExternalInsert(pB *Body) {
 		}
 	}
 
+	// Then reinsert the body that was in the Node position in the first place.
 	for _, newNode := range t.Ts {
 		log.Infof("For currentBody(%s), checking quadrant %s", currentBody.Label, newNode.Q)
 		if currentBody.InQuadrant(newNode.Q) {
@@ -90,9 +102,12 @@ func (t *Node) isExternalInsert(pB *Body) {
 		}
 	}
 
+	// Update the Node's body to the center of mass between the two bodies.
 	t.B.AddBody(pB)
 }
 
+// Insert adds body pB into the calling Node. Depending on if the Node is internal or
+// external the node is inserted differently.
 func (t *Node) Insert(pB *Body) {
 	log.Infof("Inserting body: %s", pB.Label)
 	body := &Body{
@@ -115,10 +130,8 @@ func (t *Node) Insert(pB *Body) {
 	} else {
 		log.Infof("t is External, running external insert, body (%s).", body.Label)
 		if t.Ts == nil {
-			log.Info(t.Q)
 			new_quadrants := t.Q.Subdivide()
 			t.Ts = NodesFromQuadrants(new_quadrants)
-			log.Infof("t lacked Ts, adding quadrants: %s", t.Ts)
 		}
 
 		t.isExternalInsert(body)
@@ -126,43 +139,37 @@ func (t *Node) Insert(pB *Body) {
 
 }
 
+// UseBody returns a bool if the body at the calling Node should be used in the force calculations,
+// or if the Tree needs to be traversed further down.
 func (n *Node) UseBody(b *Body) bool {
-	// Given that we're on Node, n, do we use the body in the Node or
-	// use traverse down the Tree.
-
-	// Also, if the Node is internal there are no possible children to use
-	// for a more precise center of mass, therefore, use the body.
-
-	fmt.Printf("Benchmark for UseBody(%s): %v\n", b.Label, (b.DistanceTo(*n.B) / n.Q.Width))
 	return ((b.DistanceTo(*n.B) / n.Q.Width) > theta) && !n.IsInternal()
 }
 
+// UpdateForce updates the force on the called body, b, based on the Bodies in Node, n, and its children.
 func (n *Node) UpdateForce(b *Body) {
 	if n.UseBody(b) {
-		fmt.Printf("%s is far enough away from %s, using.\n", b.Label, n.B.Label)
 		// We use the body at node n, and don't traverse its children.
 		b.AddForce(*n.B)
 	} else {
-		fmt.Printf("%s is too close to %s, using children's.\n", b.Label, n.B.Label)
 		for i := range n.Ts {
-			// If it's the same point, don't UpdateForce
 			if (n.Ts[i].B == nil) || (b.Label == n.Ts[i].B.Label) {
 				fmt.Printf("Skipping index %d for %s.\n", i, b.Label)
 				continue
 			}
 
-			fmt.Printf("Updating force for %s with %s.\n", b.Label, n.Ts[i].B.Label)
 			n.Ts[i].UpdateForce(b)
 		}
 	}
 }
 
+// NodeFromQuadrant returns a Node given a passed Quadrant.
 func NodeFromQuadrant(q Quadrant) Node {
 	return Node{
 		Q: q,
 	}
 }
 
+// Pow returns a**b where a and b are integers.
 func Pow(a, b int) int {
 	p := 1
 	for b > 0 {

@@ -1,3 +1,5 @@
+// Copyright (C) 2016 Trent Hauck - All Rights Reserved
+
 package barneshut
 
 import (
@@ -5,27 +7,34 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-// Long term Quadrant becomes a node.
+// Quadrant is a struct that contains with width of the quadrant and the
+// point where the lower-left (LL) is. The quadrant is assumed to be a square.
 type Quadrant struct {
 	Width float64   `json:"Width"` // the Width of the quadrant
 	LL    []float64 `LL:"Base"`    // the "lower-left" point of this quadrant
 }
 
+// String returns a pretty printed version of the Quadrant type.
 func (q Quadrant) String() string {
 	return fmt.Sprintf("Quadrant{Width: %v, LL: %v}", q.Width, q.LL)
 }
 
+// ContainsBody returns true if the body (of type *Body) is in the Quadrant.
 func (q Quadrant) ContainsBody(body *Body) bool {
 	return q.Contains(body.R)
 }
 
+// Contains returns true if the point is within its boarders.
 func (q Quadrant) Contains(point []float64) bool {
 
-	for dim := 0; dim < len(point); dim++ {
-		LL_open := q.LL[dim]
-		LL_close := LL_open + q.Width
+	var LLOpen float64
+	var LLClose float64
 
-		if !((LL_open < point[dim]) && (point[dim] < LL_close)) {
+	for dim := 0; dim < len(point); dim++ {
+		LLOpen = q.LL[dim]
+		LLClose = LLOpen + q.Width
+
+		if !((LLOpen < point[dim]) && (point[dim] < LLClose)) {
 			return false
 		}
 	}
@@ -33,10 +42,10 @@ func (q Quadrant) Contains(point []float64) bool {
 	return true
 }
 
+// Equals determines if the calling Quadrant is equal to the passed Quadrant.
 func (q Quadrant) Equals(oq Quadrant) bool {
 
 	if len(oq.LL) != len(q.LL) {
-		// Added because of cases where [.5] == [.5, 0]
 		return false
 	}
 
@@ -53,6 +62,8 @@ func (q Quadrant) Equals(oq Quadrant) bool {
 	return true
 }
 
+// Subdivide creates a N-Tree within the calling quadrant and returns
+// those Quadrants as a list.
 func (q Quadrant) Subdivide() []Quadrant {
 	log.Infof("Subdividing quadrant: %s", q)
 
