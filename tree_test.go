@@ -49,9 +49,18 @@ func TestSave(t *testing.T) {
 	}
 
 	// TODO(trent): Need to remove files during test.
-	_, err = TreeFromJsonFile("tree.json")
+	_, err = TreeFromJsonFile("./tree.json")
 	if err != nil {
 		t.Error(err)
 	}
 
+}
+
+func TestTreeFromBody(t *testing.T) {
+	tree, err := TreeFromBodyFile("./bodies-big.json")
+	if err != nil {
+		panic(err)
+	}
+
+	tree.Save("./tree-big.json")
 }

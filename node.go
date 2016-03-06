@@ -66,7 +66,7 @@ func (t *Node) isInternalInsert(pB *Body) {
 	// isInternalInsert inserts a body into a Node if the Node isInternal.
 	for _, newNode := range t.Ns {
 		if pB.InQuadrant(newNode.Q) {
-			log.Infof("Inserting (internal) Body:%s into Q: %s", pB.Label, newNode.Q)
+			log.Infof("Inserting (internal) Body:%s into Quadrant: %s", pB.Label, newNode.Q)
 			newNode.Insert(pB)
 		}
 	}
