@@ -5,7 +5,6 @@ package barneshut
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 )
@@ -59,7 +58,6 @@ func TreeFromBodies(bs []*Body) (*Tree, error) {
 	t := &Tree{Root: &Node{Q: q}}
 
 	for _, b := range bs {
-		fmt.Printf("Inserting Body: %s\n", b)
 		t.Insert(b)
 	}
 

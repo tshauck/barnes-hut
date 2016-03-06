@@ -106,7 +106,6 @@ func (b Body) Equals(ob *Body) bool {
 // AddForce updates the Force vector for the calling struct based on the
 // metrics associated with Body, ob.
 func (b *Body) AddForce(ob Body) {
-	fmt.Printf("Adding force from %s to %s.\n", ob.Label, b.Label)
 	overall_distance := b.DistanceTo(ob)
 	totalForce := (G * b.Mass * ob.Mass) / math.Pow(overall_distance, 2)
 
@@ -119,7 +118,6 @@ func (b *Body) AddForce(ob Body) {
 	}
 
 	b.F = newForce
-	fmt.Printf("%s's new force: %v\n", b.Label, b.F)
 }
 
 // AddBody updates body, b, with a new mass and position.  This is effectively
