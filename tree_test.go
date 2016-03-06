@@ -23,12 +23,12 @@ func testTree() *Tree {
 	bodies := exampleBodies()
 
 	q := Quadrant{Width: 6, LL: []float64{-3, -3}}
-	ns := NodesFromQuadrants(q.Subdivide())
+	ns := NodesFromQuadrants(q.Subdivide(), 1)
 	ns[0].B = bodies["A"]
 	ns[1].B = bodies["B"]
 	ns[2].B = bodies["CD"]
 
-	CDNs := NodesFromQuadrants(ns[2].Q.Subdivide())
+	CDNs := NodesFromQuadrants(ns[2].Q.Subdivide(), 2)
 	CDNs[1].B = bodies["C"]
 	CDNs[2].B = bodies["D"]
 

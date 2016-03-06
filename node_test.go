@@ -81,6 +81,30 @@ func TestUpdateForce(t *testing.T) {
 	tt.Root.UpdateForce(body)
 }
 
+func TestLevel(t *testing.T) {
+
+	bodies := exampleBodies()
+
+	testNode := Node{
+		Q:     Quadrant{Width: 6, LL: []float64{-3, -3}},
+		Level: 1,
+	}
+
+	testNode.Insert(bodies["A"])
+	testNode.Insert(bodies["B"])
+	testNode.Insert(bodies["C"])
+	testNode.Insert(bodies["D"])
+
+	if testNode.Level != 1 {
+		t.Errorf("testNode has level %d, but should have level %d", testNode.Level, 1)
+	}
+
+	if testNode.Ns[0].Level != 2 {
+		t.Errorf("testNode has level %d, but should have level %d", testNode.Ns[0].Level, 2)
+	}
+
+}
+
 func TestIsInternal(t *testing.T) {
 	b := Body{
 		R:    []float64{1.0},

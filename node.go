@@ -17,9 +17,10 @@ const (
 // Node is a single position in space. It contains a quadrant describing that location and optionally
 // a Body, B, and an array of children Nodes that are all within the the Node's Quadrant.
 type Node struct {
-	B  *Body    `json:"Body"`
-	Q  Quadrant `json:"Quadrant"`
-	Ns []*Node  `json:"Nodes"`
+	B     *Body    `json:"Body"`
+	Q     Quadrant `json:"Quadrant"`
+	Ns    []*Node  `json:"Nodes"`
+	Level int      `json:"Level"` // the level of the node in the Tree
 }
 
 // Json returns the byte array of the json representation of a Node.
@@ -30,7 +31,7 @@ func (n Node) Json() []byte {
 
 // String returns a string in pretty print form for the Node.
 func (t Node) String() string {
-	return fmt.Sprintf("Node{B: %s, Q: %s, Ns: %s}", t.B, t.Q, t.Ns)
+	return fmt.Sprintf("Node{B: %s, Q: %s, Ns: %s, Level: %d}", t.B, t.Q, t.Ns, t.Level)
 }
 
 // HasBody returns a boolean that is true if the Body has a non-nil Body.
@@ -51,11 +52,11 @@ func (t Node) IsInternal() bool {
 }
 
 // NodesFromQuadrants retruns a list of Nodes of a list of Quadrants.
-func NodesFromQuadrants(qs []Quadrant) []*Node {
+func NodesFromQuadrants(qs []Quadrant, l int) []*Node {
 	var newNodes []*Node
 
 	for _, q := range qs {
-		newNodes = append(newNodes, &Node{Q: q})
+		newNodes = append(newNodes, &Node{Q: q, Level: l})
 	}
 
 	return newNodes
@@ -131,7 +132,7 @@ func (t *Node) Insert(pB *Body) {
 		log.Infof("t is External, running external insert, body (%s).", body.Label)
 		if t.Ns == nil {
 			new_quadrants := t.Q.Subdivide()
-			t.Ns = NodesFromQuadrants(new_quadrants)
+			t.Ns = NodesFromQuadrants(new_quadrants, t.Level+1)
 		}
 
 		t.isExternalInsert(body)
