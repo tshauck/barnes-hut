@@ -89,3 +89,11 @@ func (q Quadrant) Subdivide() []Quadrant {
 
 	return quadrants
 }
+
+func (q Quadrant) Min() float64 {
+	return q.LL[0]
+}
+
+func (q Quadrant) Max() float64 {
+	return q.LL[0] + q.Width
+}

@@ -63,7 +63,7 @@ func TestNodeHasBody(t *testing.T) {
 
 func TestUpdateForce(t *testing.T) {
 	bodies := exampleBodies()
-	tt := testTree()
+	tt := testTree(false)
 
 	body := &Body{
 		Label: bodies["A"].Label,
@@ -132,7 +132,7 @@ func TestInsert(t *testing.T) {
 	testNode.Insert(bodies["C"])
 	testNode.Insert(bodies["D"])
 
-	expected := testTree()
+	expected := testTree(false)
 	expectedNode := expected.Root
 
 	if !expectedNode.B.EqualPosition(testNode.B) {

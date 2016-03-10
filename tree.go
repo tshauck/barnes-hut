@@ -19,6 +19,21 @@ func (t *Tree) Insert(b *Body) {
 	t.Root.Insert(b)
 }
 
+// TODO(trent): This is an odd function all alone.
+func updateLocations(n *Node) {
+	for _, ns := range n.Ns {
+		if !ns.IsInternal() && ns.B != nil {
+			ns.B.Update(1)
+		} else {
+			updateLocations(ns)
+		}
+	}
+}
+
+func (t *Tree) UpdateBodies() {
+	updateLocations(t.Root)
+}
+
 // Save persists the json representation of a Tree into file, f.
 func (t Tree) Save(f string) error {
 	b, err := json.Marshal(t)

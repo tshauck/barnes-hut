@@ -42,11 +42,16 @@ func (b Body) String() string {
 
 // Update moves the Velocity and Position "forward" one time step based on the
 // current Velocity, Force, and Mass.
-func (b Body) Update(dt float64) {
+func (b *Body) Update(dt float64) {
+	var newVs []float64
+	var newRs []float64
+
 	for i := 0; i < len(b.R); i++ {
-		b.V[i] += dt * b.F[i] / b.Mass
-		b.R[i] += dt * b.V[i]
+		newVs = append(newVs, b.V[i]+dt*b.F[i]/b.Mass)
+		newRs = append(newRs, b.R[i]+dt*newVs[i])
 	}
+	b.V = newVs
+	b.R = newRs
 }
 
 // DistanceTo calculates the euclidian distance between Body, b, and Body, ob.
