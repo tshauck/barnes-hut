@@ -5,7 +5,6 @@ package barneshut
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
 	"math"
 )
 
@@ -108,8 +107,6 @@ func (b Body) Equals(ob *Body) bool {
 func (b *Body) AddForce(ob Body) {
 	overall_distance := b.DistanceTo(ob)
 	totalForce := (G * b.Mass * ob.Mass) / math.Pow(overall_distance, 2)
-
-	log.Debugf("Distance between bodies is (%f), and its Force is (%f)", overall_distance, totalForce)
 
 	var newForce []float64
 	for i := 0; i < len(b.R); i++ {

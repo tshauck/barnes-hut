@@ -5,7 +5,6 @@ package barneshut
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
 )
 
 const (
@@ -66,7 +65,6 @@ func (t *Node) isInternalInsert(pB *Body) {
 	// isInternalInsert inserts a body into a Node if the Node isInternal.
 	for _, newNode := range t.Ns {
 		if pB.InQuadrant(newNode.Q) {
-			log.Infof("Inserting (internal) Body:%s into Quadrant: %s", pB.Label, newNode.Q)
 			newNode.Insert(pB)
 		}
 	}
@@ -85,9 +83,7 @@ func (t *Node) isExternalInsert(pB *Body) {
 
 	// First inserts the passed body into the array.
 	for _, newNode := range t.Ns {
-		log.Infof("For pB(%s), checking quadrant %s", pB.Label, newNode.Q)
 		if pB.InQuadrant(newNode.Q) {
-			log.Infof("Inserting (external) Body:%s into Q: %s", pB.Label, newNode.Q)
 			newNode.Insert(pB)
 			break
 		}
@@ -95,9 +91,7 @@ func (t *Node) isExternalInsert(pB *Body) {
 
 	// Then reinsert the body that was in the Node position in the first place.
 	for _, newNode := range t.Ns {
-		log.Infof("For currentBody(%s), checking quadrant %s", currentBody.Label, newNode.Q)
 		if currentBody.InQuadrant(newNode.Q) {
-			log.Infof("Inserting (external) Body:%s into Q: %s", currentBody.Label, newNode.Q)
 			newNode.Insert(currentBody)
 			break
 		}
@@ -110,7 +104,6 @@ func (t *Node) isExternalInsert(pB *Body) {
 // Insert adds body pB into the calling Node. Depending on if the Node is internal or
 // external the node is inserted differently.
 func (t *Node) Insert(pB *Body) {
-	log.Infof("Inserting body: %s", pB.Label)
 	body := &Body{
 		R:     pB.R,
 		V:     pB.V,
@@ -120,16 +113,13 @@ func (t *Node) Insert(pB *Body) {
 	}
 
 	if !t.HasBody() {
-		log.Infof("t doesn't have a body, running t.B = body (%s)", body.Label)
 		t.B = body
 		return
 	}
 
 	if t.IsInternal() {
-		log.Infof("t is Internal, running internal insert body (%s)", body.Label)
 		t.isInternalInsert(body)
 	} else {
-		log.Infof("t is External, running external insert, body (%s).", body.Label)
 		if t.Ns == nil {
 			new_quadrants := t.Q.Subdivide()
 			t.Ns = NodesFromQuadrants(new_quadrants, t.Level+1)

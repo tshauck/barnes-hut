@@ -3,14 +3,8 @@
 package barneshut
 
 import (
-	log "github.com/Sirupsen/logrus"
 	"testing"
 )
-
-func init() {
-	//Move this to a different place, like main.go?
-	log.SetLevel(log.WarnLevel)
-}
 
 func TestContains(t *testing.T) {
 

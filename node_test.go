@@ -3,13 +3,8 @@
 package barneshut
 
 import (
-	log "github.com/Sirupsen/logrus"
 	"testing"
 )
-
-func init() {
-	log.SetLevel(log.DebugLevel)
-}
 
 func TestIndex2Offset(t *testing.T) {
 

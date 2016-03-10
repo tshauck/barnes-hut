@@ -4,7 +4,6 @@ package barneshut
 
 import (
 	"fmt"
-	log "github.com/Sirupsen/logrus"
 )
 
 // Quadrant is a struct that contains with width of the quadrant and the
@@ -65,7 +64,6 @@ func (q Quadrant) Equals(oq Quadrant) bool {
 // Subdivide creates a N-Tree within the calling quadrant and returns
 // those Quadrants as a list.
 func (q Quadrant) Subdivide() []Quadrant {
-	log.Infof("Subdividing quadrant: %s", q)
 
 	cnt_new_quadrants := Pow(2, len(q.LL))
 
@@ -74,7 +72,6 @@ func (q Quadrant) Subdivide() []Quadrant {
 
 	for i := 0; i < cnt_new_quadrants; i++ {
 		offset = Index2Offset(i, len(q.LL))
-		log.Infof("Working on offset %v", offset)
 
 		var new_points []float64
 
@@ -87,7 +84,6 @@ func (q Quadrant) Subdivide() []Quadrant {
 			j++
 		}
 
-		log.Infof("Got new points: %v", new_points)
 		quadrants = append(quadrants, Quadrant{LL: new_points, Width: q.Width / 2})
 	}
 
